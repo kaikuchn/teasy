@@ -1,5 +1,6 @@
 require 'teasy/version'
 
 module Teasy
-  # Your code goes here...
+  class Timestamp
+  end
 end
