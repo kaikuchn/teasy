@@ -1,0 +1,11 @@
+AllCops:
+  Exclude:
+    - teasy.gemspec
+    - 'vendor/**/*'
+
+# Setting the line length to a maximum of 80 chars.
+LineLength:
+  Enabled: true
+  Max: 80
+Documentation:
+  Enabled: false
