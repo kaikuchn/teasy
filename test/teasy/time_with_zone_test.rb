@@ -3,8 +3,8 @@ require 'test_helper'
 class TimeWithZoneTest < Minitest::Unit::TestCase
   def setup
     @params = [2042, 4, 2, 0, 30, 45, 1.112]
-    @timestamptz = TimeWithZone.new(*@params)
-    @timestamptz_berlin = TimeWithZone.new(*@params, 'Europe/Berlin')
+    @timestamptz = Teasy::TimeWithZone.new(*@params)
+    @timestamptz_berlin = Teasy::TimeWithZone.new(*@params, 'Europe/Berlin')
   end
 
   def test_constructor_parameter
@@ -20,7 +20,7 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   def test_constructor_defaults_to_teasy_default_zone
     assert_equal Teasy.default_zone, @timestamptz.zone
     Teasy.stub(:default_zone, 'Europe/Berlin') do
-      timestamptz = TimeWithZone.new(*@params)
+      timestamptz = Teasy::TimeWithZone.new(*@params)
       assert_equal 'Europe/Berlin', timestamptz.zone
     end
   end
@@ -29,18 +29,27 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
     assert_equal 'Europe/Berlin', @timestamptz_berlin.zone
   end
 
+  def test_can_deal_with_ambiguous_time
+    dst_start = [2014, 3, 30, 2, 30, 0, 0, 'Europe/Berlin']
+    dst_end = [2014, 10, 26, 2, 30, 0, 0, 'Europe/Berlin']
+    assert_raises(TZInfo::AmbiguousTime) { Teasy::TimeWithZone.new(*dst_end) }
+    assert_raises(TZInfo::PeriodNotFound) do
+      Teasy::TimeWithZone.new(*dst_start)
+    end
+  end
+
   def test_addition
     assert_equal 45, @timestamptz.sec
     @timestamptz += 5
     assert_equal 50, @timestamptz.sec
-    assert_instance_of TimeWithZone, @timestamptz
+    assert_instance_of Teasy::TimeWithZone, @timestamptz
   end
 
   def test_subtraction
     assert_equal 45, @timestamptz.sec
     @timestamptz -= 5
     assert_equal 40, @timestamptz.sec
-    assert_instance_of TimeWithZone, @timestamptz
+    assert_instance_of Teasy::TimeWithZone, @timestamptz
   end
 
   def test_comparison
@@ -54,13 +63,13 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_asctime
-    assert_equal 'Wed Apr  2 0:30:45 2042', @timestamptz.asctime
-    assert_equal 'Wed Apr  2 0:30:45 2042', @timestamptz_berlin.asctime
+    assert_equal 'Wed Apr  2 00:30:45 2042', @timestamptz.asctime
+    assert_equal 'Wed Apr  2 00:30:45 2042', @timestamptz_berlin.asctime
   end
 
   def test_ctime
-    assert_equal 'Wed Apr  2 0:30:45 2042', @timestamptz.ctime
-    assert_equal 'Wed Apr  2 0:30:45 2042', @timestamptz_berlin.ctime
+    assert_equal 'Wed Apr  2 00:30:45 2042', @timestamptz.ctime
+    assert_equal 'Wed Apr  2 00:30:45 2042', @timestamptz_berlin.ctime
   end
 
   def test_day
@@ -78,12 +87,15 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
 
   def test_eql?
     assert @timestamptz.eql?(@timestamptz)
+    puts @timestamptz
+    puts @timestamptz_berlin + 7200
     assert @timestamptz.eql?(@timestamptz_berlin + 7200)
   end
 
   def test_friday?
-    friday = TimeWithZone.new(2042, 04, 04)
-    friday_berlin = TimeWithZone.new(2042, 04, 04, 0, 0, 0, 0, 'Europe/Berlin')
+    friday = Teasy::TimeWithZone.new(2042, 04, 04)
+    friday_berlin = Teasy::TimeWithZone.new(
+      2042, 04, 04, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, friday.friday?
     assert_equal true, friday_berlin.friday?
     assert_equal false, @timestamptz.friday?
@@ -91,8 +103,8 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_getutc
-    assert_instance_of TimeWithZone, @timestamptz.getutc
-    assert_instance_of TimeWithZone, @timestamptz_berlin.getutc
+    assert_instance_of Teasy::TimeWithZone, @timestamptz.getutc
+    assert_instance_of Teasy::TimeWithZone, @timestamptz_berlin.getutc
     assert_equal @timestamptz, @timestamptz.getutc
     assert_equal @timestamptz_berlin, @timestamptz_berlin.getutc
     assert @timestamptz_berlin.getutc.utc?
@@ -116,7 +128,7 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
     assert_equal '2042-04-02 00:30:45 UTC', @timestamptz.inspect
     assert_equal '2042-04-02 00:30:45 +0200', @timestamptz_berlin.inspect
     timestamptz = Teasy.stub(:default_zone, 'Europe/Berlin') do
-      TimeWithZone.new(2042)
+      Teasy::TimeWithZone.new(2042)
     end
     assert_equal '2042-01-01 00:00:00 +0100', timestamptz.inspect
   end
@@ -143,8 +155,9 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_monday?
-    monday = TimeWithZone.new(2042, 03, 31)
-    monday_berlin = TimeWithZone.new(2042, 03, 31, 0, 0, 0, 0, 'Europe/Berlin')
+    monday = Teasy::TimeWithZone.new(2042, 03, 31)
+    monday_berlin = Teasy::TimeWithZone.new(
+      2042, 03, 31, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, monday.monday?
     assert_equal true, monday_berlin.monday?
     assert_equal false, @timestamptz.monday?
@@ -157,8 +170,9 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_round
-    assert_instance_of TimeWithZone, @timestamptz.round
-    assert_instance_of TimeWithZone, @timestamptz_berlin.round(2)
+    assert_instance_of Teasy::TimeWithZone, @timestamptz.round
+    assert_instance_of Teasy::TimeWithZone, @timestamptz_berlin.round(2)
+    assert_equal 1_112, @timestamptz.nsec
     assert_equal 0, @timestamptz.round.nsec
     assert_equal 1_000, @timestamptz.round(6).nsec
     assert_equal 1_100, @timestamptz.round(7).nsec
@@ -167,8 +181,9 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_saturday?
-    saturday = TimeWithZone.new(2042, 4, 5)
-    saturday_berlin = TimeWithZone.new(2042, 4, 5, 0, 0, 0, 0, 'Europe/Berlin')
+    saturday = Teasy::TimeWithZone.new(2042, 4, 5)
+    saturday_berlin = Teasy::TimeWithZone.new(
+      2042, 4, 5, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, saturday.saturday?
     assert_equal true, saturday_berlin.saturday?
     assert_equal false, @timestamptz.saturday?
@@ -189,13 +204,14 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_subsec
-    assert_equal 1.112.to_r, @timestamptz.subsec
-    assert_equal 1.112.to_r, @timestamptz_berlin.subsec
+    assert_equal 1.112.to_r / 1_000_000, @timestamptz.subsec
+    assert_equal 1.112.to_r / 1_000_000, @timestamptz_berlin.subsec
   end
 
   def test_sunday?
-    sunday = TimeWithZone.new(2042, 4, 6)
-    sunday_berlin = TimeWithZone.new(2042, 4, 6, 0, 0, 0, 0, 'Europe/Berlin')
+    sunday = Teasy::TimeWithZone.new(2042, 4, 6)
+    sunday_berlin = Teasy::TimeWithZone.new(
+      2042, 4, 6, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, sunday.sunday?
     assert_equal true, sunday_berlin.sunday?
     assert_equal false, @timestamptz.sunday?
@@ -203,8 +219,9 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_thursday?
-    thursday = TimeWithZone.new(2042, 4, 3)
-    thursday_berlin = TimeWithZone.new(2042, 4, 3, 0, 0, 0, 0, 'Europe/Berlin')
+    thursday = Teasy::TimeWithZone.new(2042, 4, 3)
+    thursday_berlin = Teasy::TimeWithZone.new(
+      2042, 4, 3, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, thursday.thursday?
     assert_equal true, thursday_berlin.thursday?
     assert_equal false, @timestamptz.thursday?
@@ -231,23 +248,25 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
 
   def test_to_r
     assert_instance_of Rational, @timestamptz.to_r
-    assert_equal 2_272_147_200.to_r, TimeWithZone.new(2042)
-    time_with_zone = TimeWithZone.new(2042, 1, 1, 1, 0, 0, 0, 'Europe/Berlin')
-    assert_equal 2_272_147_200.to_r, time_with_zone
+    assert_equal 2_272_147_200.to_r, Teasy::TimeWithZone.new(2042).to_r
+    time_with_zone = Teasy::TimeWithZone.new(
+      2042, 1, 1, 1, 0, 0, 0, 'Europe/Berlin')
+    assert_equal 2_272_147_200.to_r, time_with_zone.to_r
   end
 
   def test_to_s
     assert_equal '2042-04-02 00:30:45 UTC', @timestamptz.to_s
     assert_equal '2042-04-02 00:30:45 +0200', @timestamptz_berlin.to_s
     timestamptz = Teasy.stub(:default_zone, 'Europe/Berlin') do
-      TimeWithZone.new(2042)
+      Teasy::TimeWithZone.new(2042)
     end
     assert_equal '2042-01-01 00:00:00 +0100', timestamptz.to_s
   end
 
   def test_tuesday?
-    tuesday = TimeWithZone.new(2042, 4, 1)
-    tuesday_berlin = TimeWithZone.new(2042, 4, 1, 0, 0, 0, 0, 'Europe/Berlin')
+    tuesday = Teasy::TimeWithZone.new(2042, 4, 1)
+    tuesday_berlin = Teasy::TimeWithZone.new(
+      2042, 4, 1, 0, 0, 0, 0, 'Europe/Berlin')
     assert_equal true, tuesday.tuesday?
     assert_equal true, tuesday_berlin.tuesday?
     assert_equal false, @timestamptz.tuesday?
@@ -262,8 +281,8 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   def test_utc
     timestamptz = @timestamptz.dup
     timestamptz_berlin = @timestamptz_berlin.dup
-    assert_instance_of TimeWithZone, timestamptz.utc
-    assert_instance_of TimeWithZone, timestamptz_berlin.utc
+    assert_instance_of Teasy::TimeWithZone, timestamptz.utc
+    assert_instance_of Teasy::TimeWithZone, timestamptz_berlin.utc
     assert_equal @timestamptz, timestamptz.utc
     assert_equal @timestamptz_berlin, timestamptz_berlin.utc
     assert timestamptz_berlin.utc?
@@ -293,8 +312,8 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   end
 
   def test_yday
-    assert_equal 92, @timestamptz.wday
-    assert_equal 92, @timestamptz_berlin.wday
+    assert_equal 92, @timestamptz.yday
+    assert_equal 92, @timestamptz_berlin.yday
   end
 
   def test_year
