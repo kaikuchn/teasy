@@ -1,11 +1,8 @@
 require 'tzinfo'
+require 'forwardable'
 
 module Teasy
-  def self.default_zone
-    Thread.current[:teasy_default_zone] ||= 'UTC'
-  end
-
-  require 'forwardable'
+  # rubocop:disable Metrics/ClassLength
   class TimeWithZone
     extend Forwardable
     include Comparable
@@ -15,10 +12,10 @@ module Teasy
                    :tuesday?, :wednesday?, :thursday?, :friday?, :saturday?,
                    :sunday?
     def_delegators :period, :dst?
-    alias_method :isdst, :dst?
     def_delegator :period, :utc_total_offset, :utc_offset
     def_delegators :to_time, :hash, :to_i, :to_r, :to_f
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(year, month = nil, day = nil,
                    hour = nil, minute = nil, second = nil, usec_with_frac = nil,
                    zone = Teasy.default_zone)
@@ -26,10 +23,30 @@ module Teasy
       @time = Time.utc(year, month, day, hour, minute, second, usec_with_frac)
       @period = @zone.period_for_local(@time)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def self.from_time(time, zone = Teasy.default_zone)
       new(time.year, time.mon, time.day, time.hour, time.min, time.sec,
           time.nsec / 1_000.0, zone)
+    end
+
+    def self.from_utc(utc_time, zone = Teasy.default_zone)
+      new(
+        utc_time.year, utc_time.mon, utc_time.day, utc_time.hour, utc_time.min,
+        utc_time.sec, utc_time.nsec / 1_000.0, 'UTC'
+      ).in_time_zone!(zone)
+    end
+
+    def in_time_zone!(zone = Teasy.default_zone)
+      time = to_time
+      @zone = TZInfo::Timezone.get(zone)
+      @time = @zone.utc_to_local(time)
+      @period = @zone.period_for_utc(time)
+      self
+    end
+
+    def in_time_zone(zone = Teasy.default_zone)
+      dup.in_time_zone!(zone)
     end
 
     def zone
@@ -40,19 +57,24 @@ module Teasy
       @zone.identifier == 'UTC'
     end
 
-    def utc
+    def utc!
       @time = @zone.local_to_utc(@time)
       @zone = TZInfo::Timezone.get('UTC')
       @period = @zone.period_for_local(@time)
       self
     end
 
-    def getutc
-      dup.utc
+    def utc
+      dup.utc!
+    end
+
+    def round!(*args)
+      @time = @time.round(*args)
+      self
     end
 
     def round(*args)
-      TimeWithZone.from_time(time.round(*args), @zone.identifier)
+      dup.round!(*args)
     end
 
     def inspect
@@ -74,11 +96,11 @@ module Teasy
     alias_method :ctime, :asctime
 
     def +(other)
-      TimeWithZone.from_time(time + other, @zone.identifier)
+      TimeWithZone.from_utc(to_time + other, @zone.identifier)
     end
 
     def -(other)
-      TimeWithZone.from_time(time - other, @zone.identifier)
+      TimeWithZone.from_utc(to_time - other, @zone.identifier)
     end
 
     def <=>(other)
@@ -146,4 +168,5 @@ module Teasy
       format(string_format, sign, hours, minutes, seconds)
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
