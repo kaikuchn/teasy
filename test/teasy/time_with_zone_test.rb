@@ -113,6 +113,8 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
     @timestamptz -= 5
     assert_equal 40, @timestamptz.sec
     assert_instance_of Teasy::TimeWithZone, @timestamptz
+    assert_instance_of Float, @timestamptz - @timestamptz
+    assert_equal 5.0, @timestamptz - (@timestamptz - 5)
   end
 
   def test_subtraction_around_dst_end

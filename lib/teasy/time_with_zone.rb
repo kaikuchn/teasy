@@ -100,7 +100,13 @@ module Teasy
     end
 
     def -(other)
-      TimeWithZone.from_utc(to_time - other, @zone.identifier)
+      if other.is_a? Numeric
+        TimeWithZone.from_utc(to_time - other, @zone.identifier)
+      elsif other.respond_to? :to_time
+        to_time - other.to_time
+      else
+        fail TypeError, "#{other.class} can't be coerced into TimeWithZone"
+      end
     end
 
     def <=>(other)
