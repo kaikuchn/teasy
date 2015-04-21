@@ -63,10 +63,19 @@ time_with_zone # -> 2042-01-01 01:00:00 +0100
 ```
 
 #### Comparisons
+As long as a `TimeWithZone` converts to the same utc time it is `==` and `eql?` to another `TimeWithZone`.
+If the other is not a `TimeWithZone`, then only `==` will return true (since it performs a conversion), given that other responds to `to_time`. `eql?` will not perform a conversion - similiar to how `Numeric` works in Ruby.
+
+Examples:
 ```ruby
 calcutta_time = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'Asia/Calcutta') # -> 2042-01-01 05:30:00 +0530
 ny_time = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'America/New_York') # -> 2041-12-31 19:00:00 -0500
+
 ny_time == calcutta_time # -> true
+ny_time.eql? calcutta_time # -> true
+
+calcutta_time == Time.utc(2042) # -> true
+calcutta_time.eql? Time.utc(2042) # -> false
 ```
 
 ### FloatingTime
@@ -88,6 +97,26 @@ Teasy::FloatingTime.from_time(time_with_zone) # -> 2042-01-01 00:00:00
 ```
 
 #### Comparisons
+When the year, month, day, hour, minute, second and nano-second of two `FloatingTime` objects are the same then `eql?` and `==` return true. When the other object is not a FloatingTime but responds to `to_time` and `utc_offset` then `==` will return true if the aforementioned list of attributes are equal. However, `eql?` again does not perform any conversion and thus will return false for any object that is not a `FloatingTime`.
+
+Examples:
+```ruby
+floating_time = Teasy::FloatingTime.from_time(Time.utc(2042)) # -> 2042-01-01 00:00:00
+other_floating_time = Teasy::FloatingTime.from_time(Time.utc(2042, 1, 1, 1)) # -> 2042-01-01 01:00:00
+ny_time = Teasy::TimeWithZone.from_time(Time.utc(2042), 'America/New_York') # -> 2042-01-01 00:00:00 -0500
+other_ny_time = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'America/New_York') # -> 2041-12-31 19:00:00 -0500
+
+floating_time == other_floating_time # -> false
+floating_time.eql? other_floating_time # -> false
+
+floating_time == floating_time.dup # -> true
+floating_time.eql? floating_time.dup # -> true
+
+floating_time == Time.utc(2042) # -> true
+floating_time == ny_time # -> true
+floating_time == other_ny_time # -> false
+[Time.utc(2042), ny_time, other_ny_time].any? { |time| floating_time.eql? time } # -> false
+```
 
 ## Contributing
 
