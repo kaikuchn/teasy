@@ -36,5 +36,6 @@ class TeasyTest < Minitest::Test
       assert_equal 'Europe/Berlin', Teasy.default_zone
     end
     assert_equal 'UTC', Teasy.default_zone
+    assert_equal 1, Teasy.with_zone('Europe/Berlin') { 1 }
   end
 end
