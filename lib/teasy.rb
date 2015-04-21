@@ -1,5 +1,6 @@
 require 'teasy/version'
 require 'teasy/time_with_zone'
+require 'teasy/floating_time'
 
 module Teasy
   def self.default_zone

@@ -13,7 +13,7 @@ module Teasy
                    :sunday?
     def_delegators :period, :dst?
     def_delegator :period, :utc_total_offset, :utc_offset
-    def_delegators :to_time, :hash, :to_i, :to_r, :to_f
+    def_delegators :to_time, :to_i, :to_r, :to_f
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(year, month = nil, day = nil,
@@ -31,10 +31,7 @@ module Teasy
     end
 
     def self.from_utc(utc_time, zone = Teasy.default_zone)
-      new(
-        utc_time.year, utc_time.mon, utc_time.day, utc_time.hour, utc_time.min,
-        utc_time.sec, utc_time.nsec / 1_000.0, 'UTC'
-      ).in_time_zone!(zone)
+      from_time(utc_time, 'UTC').in_time_zone!(zone)
     end
 
     def in_time_zone!(zone = Teasy.default_zone)
@@ -114,12 +111,13 @@ module Teasy
       to_time <=> other.to_time
     end
 
-    def ==(other)
-      return false unless other.respond_to? :to_time
-      to_time == other.to_time
+    def eql?(other)
+      hash == other.hash
     end
 
-    alias_method :eql?, :==
+    def hash
+      (utc.to_a << self.class).hash
+    end
 
     def to_a
       time.to_a[0..7] + [dst?, period.abbreviation.to_s]
@@ -140,10 +138,9 @@ module Teasy
     ZONE_COLONS_OFFSET = /(?<!%)%::z/
 
     def self.zone_directives_matcher
-      @zone_directives_matcher ||= Regexp.union(ZONE_ABBREV,
-                                                ZONE_NO_COLON_OFFSET,
-                                                ZONE_COLON_OFFSET,
-                                                ZONE_COLONS_OFFSET)
+      @zone_directives_matcher ||= Regexp.union(
+        ZONE_ABBREV, ZONE_NO_COLON_OFFSET, ZONE_COLON_OFFSET, ZONE_COLONS_OFFSET
+      )
     end
 
     def includes_zone_directive?(format)

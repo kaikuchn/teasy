@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class FloatingTimeTest < Minitest::Unit::TestCase
+class FloatingTimeTest < Minitest::Test
   def setup
     @params = [2042, 4, 2, 0, 30, 45, 1.112]
     @timestamp = Teasy::FloatingTime.new(*@params)
@@ -23,16 +23,6 @@ class FloatingTimeTest < Minitest::Unit::TestCase
     assert_equal 0, timestamp.hour
   end
 
-  def test_in_time_zone
-    timestamptz = @timestamp.in_time_zone
-    assert_instance_of Teasy::TimeWithZone, timestamptz
-    assert_equal 'UTC', timestamp.zone
-    assert_equal '2042-04-02 00:30:45', timestamptz.strftime('%F %T')
-    timestamptz = @timestamp.in_time_zone('Europe/Berlin')
-    assert_equal 'Europe/Berlin', timestamptz.zone
-    assert_equal '2042-04-02 00:30:45', timestamptz.strftime('%F %T')
-  end
-
   def test_addition
     assert_equal 45, @timestamp.sec
     @timestamp += 5
@@ -46,7 +36,7 @@ class FloatingTimeTest < Minitest::Unit::TestCase
     assert_equal 40, @timestamp.sec
     assert_instance_of Teasy::FloatingTime, @timestamp
     assert_instance_of Float, @timestamp - @timestamp
-    assert_equal 5.0, @timestamp - (@timestamp + 5)
+    assert_equal 5.0, @timestamp - (@timestamp - 5)
   end
 
   def test_comparison
@@ -56,7 +46,7 @@ class FloatingTimeTest < Minitest::Unit::TestCase
     assert_operator @timestamp, :==, timestamptz
     refute_operator @timestamp, :==, timestamptz.utc
     assert_operator @timestamp, :>, (@timestamp - 1800)
-    assert_operator @timestamp, :>, timestamptz.utc
+    assert_operator @timestamp, :>, timestamptz.in_time_zone('America/Chicago')
     assert_operator @timestamp, :<, (@timestamp + 1800)
     assert_operator @timestamp, :<, timestamptz.in_time_zone('Asia/Calcutta')
   end
@@ -75,8 +65,9 @@ class FloatingTimeTest < Minitest::Unit::TestCase
   end
 
   def test_eql?
-    assert @timestamp.eql? @timestamp
-    refute @timestamp.eql? Teasy::TimeWithZone.new(*@params, 'Europe/Berlin')
+    assert @timestamp.eql?(@timestamp)
+    refute @timestamp.eql?(@timestamp + 1)
+    refute @timestamp.eql?(Teasy::TimeWithZone.new(*@params, 'Europe/Berlin'))
   end
 
   def test_friday?
@@ -124,7 +115,7 @@ class FloatingTimeTest < Minitest::Unit::TestCase
   end
 
   def test_round
-    assert_instance_of Teasy::FloatingTime, @timestamptz.round
+    assert_instance_of Teasy::FloatingTime, @timestamp.round
     assert_equal 1_112, @timestamp.nsec
     assert_equal 0, @timestamp.round.nsec
     assert_equal 1_100, @timestamp.round(7).nsec
@@ -156,7 +147,10 @@ class FloatingTimeTest < Minitest::Unit::TestCase
   def test_strftime
     assert_equal '00', @timestamp.strftime('%H')
     assert_equal '00 %z', @timestamp.strftime('%H %z')
+    assert_equal '00 %:z', @timestamp.strftime('%H %:z')
+    assert_equal '00 %::z', @timestamp.strftime('%H %::z')
     assert_equal '00 %Z', @timestamp.strftime('%H %Z')
+    assert_equal '00 %Z', @timestamp.strftime('%H %%Z')
   end
 
   def test_subsec
@@ -176,7 +170,7 @@ class FloatingTimeTest < Minitest::Unit::TestCase
   end
 
   def test_to_a
-    assert_equal [45, 30, 0, 2, 4, 2042, 3, 92, false], @timestamp.to_a
+    assert_equal [45, 30, 0, 2, 4, 2042, 3, 92], @timestamp.to_a
   end
 
   def test_to_s
@@ -195,7 +189,7 @@ class FloatingTimeTest < Minitest::Unit::TestCase
 
   def test_utc
     utc_time = @timestamp.utc
-    assert_instance_of Teasy::TimeWithZone, utc_time
+    assert_instance_of Time, utc_time
     assert utc_time.utc?
     assert_equal '2042-04-02 00:30:45', utc_time.strftime('%F %T')
     assert_equal @timestamp, utc_time

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TimeWithZoneTest < Minitest::Unit::TestCase
+class TimeWithZoneTest < Minitest::Test
   def setup
     @params = [2042, 4, 2, 0, 30, 45, 1.112]
     @timestamptz = Teasy::TimeWithZone.new(*@params)
@@ -172,6 +172,7 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
   def test_eql?
     assert @timestamptz.eql?(@timestamptz)
     assert @timestamptz.eql?(@timestamptz_berlin + 7200)
+    refute @timestamptz.eql?(@timestamptz.to_time)
   end
 
   def test_friday?
@@ -189,6 +190,7 @@ class TimeWithZoneTest < Minitest::Unit::TestCase
     assert_equal @timestamptz.hash, @timestamptz.dup.hash
     assert_equal @timestamptz_berlin.hash, @timestamptz_berlin.utc.hash
     assert_equal @timestamptz.hash, (@timestamptz_berlin + 7200).hash
+    refute_equal @timestamptz.hash, @timestamptz.to_time.hash
   end
 
   def test_hour

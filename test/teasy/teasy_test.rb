@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TeasyTest < Minitest::Unit::TestCase
+class TeasyTest < Minitest::Test
   def teardown
     Teasy.default_zone = 'UTC'
   end
