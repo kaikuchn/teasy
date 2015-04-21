@@ -2,6 +2,29 @@
 
 Timezone handling made easy.
 
+## Why should anyone use this?
+
+It is astonishingly difficult to work with time zones in general and with time zones in Ruby in particular. The only two time zones you can get from native Ruby are UTC and your local time zone. Apart from that you may set offsets, but that is not the same as setting a time zone.
+This has prompted frameworks like Rails to develop classes like `ActiveSupport::TimeWithZone`. Since there is need for more than two time zones in web development.
+
+When looking for ways to work with time zones in Ruby you will find that the general advice is either to just use ActiveSupport's TimeWithZone or to use the TZInfo gem. The former has two troubles, first you get more than you wanted. Even when you only require the minimal amount of ActiveSupport classes needed to get TimeWithZone running - which isn't a fun thing to figure out - you will also load monkey patches to core Ruby classes into your code. Second it has some serious quirks that can get you, like this goodie:
+```ruby
+t = DateTime.new(2014).in_time_zone('Europe/Berlin')
+t.equal? t # -> true
+t.eql? t # -> false ... WTF?
+t == t # -> true
+```
+That was reported [here](https://github.com/rails/rails/issues/14178) a few years ago. Overall the interface of TimeWithZone is very nice though and this gem took strong inspiration from it. However I dislike monkey patching and decided not to include convenience methods like `in_time_zone` for `Time` objects.
+
+[TZInfo](https://github.com/tzinfo/tzinfo) is a great gem that provides accurate time zone information and methods to determine the period for a point in time. However the interface it provides to convert time objects is minimal and rather difficult to use. Thus this gem uses TZInfo as a source for time zone information and tries to provide a nice interface for working with time with zones. (By the way, ActiveSupports' TimeWithZone is based on TZInfo too.)
+
+This gem also comes with a FloatingTime class, which is time without a zone. I.e., 5 a.m. in New York is the same as 5 a.m. in Berlin with regards to floating time. This is useful for events that should occur at a certain time irrespective of time zone. E.g., your wake up call at 8 a.m. which you wouldn't want to ring at 2 in the morning just because you switched time zones.
+
+## Why you should use this tentatively
+
+It's tested and I spend much thought on it. But I'm not perfect and there's bound to be bugs. I'll start using this gem productively which will give me some feedback. But right now I have only what my tests tell me.
+I'm sure there is room for improvement and there will be refactorings. However for now I need to use it and I'd be happy if you did too! So that I can get some feedback and see what needs to change.
+
 ## Installation
 
 Add this line to your application's Gemfile:
