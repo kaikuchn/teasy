@@ -21,6 +21,7 @@ Or install it yourself as:
 ## Usage
 
 ### TimeWithZone
+#### Create a TimeWithZone object
 ```ruby
 # Simply call the constructor
 Teasy::TimeWithZone.new(2042, 4, 2, 0, 30, 45, 1.112, 'Europe/Berlin') # -> 2042-04-02 00:30:45 +0200
@@ -41,16 +42,52 @@ end
 Teasy::TimeWithZone.from_time(Time.utc(2042), 'Europe/Berlin') # -> 2042-01-01 00:00:00 +0100
 Teasy::TimeWithZone.from_time(Time.utc(2042), 'America/New_York') # -> 2042-01-01 00:00:00 -0500
 
-# this method interpretes the time object to be in the time zone specified, if you want it to convert to another time zone use #from_utc instead where it is assumed that the time object is in UTC time.
+# this method interpretes the time object to be in the time zone specified, 
+# if you want it to convert to another time zone use #from_utc instead
+# where it is assumed that the time object is in UTC time.
 Teasy::TimeWithZone.from_utc(Time.utc(2042), 'Europe/Berlin') # -> 2042-01-01 01:00:00 +0100
 Teasy::TimeWithZone.from_utc(Time.utc(2042), 'America/New_York') # -> 2041-12-31 19:00:00 -0500
-
-# Teasy::TimeWithZone object can be converted to other time zones by calling #in_time_zone or #in_time_zone! the latter converts the object itself the former creates a copy
-time_with_zone = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'Europe/Berlin') # -> 2042-01-01 01:00:00 +0100
-time_with_zone.in_time_zone!('America/New_York') # -> 2041-12-31 19:00:00 -0500
-time_with_zone.in_time_zone('Asia/Calcutta') # -> 2042-01-01 05:30:00 +0530
-time_with_zone # -> 2041-12-31 19:00:00 -0500
 ```
+
+#### Convert between time zones
+```ruby
+# convert a Teasy::TimeWithZone object in place to another time zone by calling #in_time_zone!
+time_with_zone # -> 2042-01-01 01:00:00 +0100
+time_with_zone.in_time_zone!('America/New_York') # -> 2041-12-31 19:00:00 -0500
+time_with_zone # -> 2041-12-31 19:00:00 -0500
+
+# convert it without changing the original object by calling #in_time_zone
+time_with_zone # -> 2042-01-01 01:00:00 +0100
+time_with_zone.in_time_zone('Asia/Calcutta') # -> 2042-01-01 05:30:00 +0530
+time_with_zone # -> 2042-01-01 01:00:00 +0100
+```
+
+#### Comparisons
+```ruby
+calcutta_time = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'Asia/Calcutta') # -> 2042-01-01 05:30:00 +0530
+ny_time = Teasy::TimeWithZone.from_utc(Time.utc(2042), 'America/New_York') # -> 2041-12-31 19:00:00 -0500
+ny_time == calcutta_time # -> true
+```
+
+### FloatingTime
+#### Create a FloatingTime object
+```ruby
+# Simply call the constructor
+Teasy::FloatingTime.new(2042, 4, 2, 0, 30, 45, 1.112) # -> 2042-04-02 00:30:45
+
+# or create one from a time object
+Teasy::FloatingTime.from_time(Time.utc(2042)) # -> 2042-01-01 00:00:00
+
+# the zone doesn't matter
+Teasy::FloatingTime.from_time(Time.local(2042)) # -> 2042-01-01 00:00:00
+
+# also, it doesn't have to be a time object, as long as it responds to
+# :year, :mon, :day, :hour, :min, :sec and :nsec
+time_with_zone = Teasy::TimeWithZone.from_time(Time.utc(2042), 'Asia/Calcutta') # -> 2042-01-01 00:00:00 +0530
+Teasy::FloatingTime.from_time(time_with_zone) # -> 2042-01-01 00:00:00
+```
+
+#### Comparisons
 
 ## Contributing
 
