@@ -1,6 +1,6 @@
 # Teasy
 
-Timezone handling made easy.
+Handling time zones in Ruby made easy.
 
 ## Why should anyone use this?
 
