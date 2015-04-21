@@ -4,7 +4,7 @@ Timezone handling made easy.
 
 ## Why should anyone use this?
 
-It is astonishingly difficult to work with time zones in general and with time zones in Ruby in particular. The only two time zones you can get from native Ruby are UTC and your local time zone. Apart from that you may set offsets, but that is not the same as setting a time zone.
+It is astonishingly [difficult to work with time zones in general](https://www.youtube.com/watch?v=-5wpm-gesOY) and with time zones in Ruby in particular. The only two time zones you can get from native Ruby are UTC and your local time zone. Apart from that you may set offsets, but that is not the same as setting a time zone.
 This has prompted frameworks like Rails to develop classes like `ActiveSupport::TimeWithZone`. Since there is need for more than two time zones in web development.
 
 When looking for ways to work with time zones in Ruby you will find that the general advice is either to just use ActiveSupport's TimeWithZone or to use the TZInfo gem. The former has two troubles, first you get more than you wanted. Even when you only require the minimal amount of ActiveSupport classes needed to get TimeWithZone running - which isn't a fun thing to figure out - you will also load monkey patches to core Ruby classes into your code. Second it has some serious quirks that can get you, like this goodie:
