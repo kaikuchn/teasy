@@ -6,8 +6,13 @@ Gem::Specification.new do |spec|
   spec.version       = Teasy::VERSION
   spec.authors       = ['Kai Kuchenbecker']
   spec.email         = ['Kai.Kuchenbecker@invision.de']
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{Teasy intends to make handling time zones easy.}
+  spec.description   = %q{Teasy builds on tzinfo to get time zone data and
+                          provides time classes to ease working with time zones.
+                          It provides TimeWithZone which is similiar to Rails'
+                          ActiveSupport::TimeWithZone but with less quirks. And
+                          it provides FloatingTime which is time without a zone.
+                        }
   spec.homepage      = ''
   spec.license       = 'MIT'
 
