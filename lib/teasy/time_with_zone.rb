@@ -1,6 +1,5 @@
 require 'tzinfo'
 require 'forwardable'
-require 'date'
 
 module Teasy
   # rubocop:disable Metrics/ClassLength
