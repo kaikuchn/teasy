@@ -316,6 +316,7 @@ class TimeWithZoneTest < Minitest::Test
   def test_to_time
     assert_instance_of Time, @timestamptz.to_time
     assert_equal 0, @timestamptz.to_time.utc_offset
+    assert @timestamptz.to_time.utc?
     assert_equal @timestamptz, @timestamptz.to_time
 
     assert_equal 7200, @timestamptz_berlin.to_time.utc_offset
@@ -436,5 +437,30 @@ class TimeWithZoneTest < Minitest::Test
   def test_zone
     assert_equal 'UTC', @timestamptz.zone
     assert_equal 'Europe/Berlin', @timestamptz_berlin.zone
+  end
+
+  def test_httpdate
+    assert_equal 'Wed, 02 Apr 2042 00:30:45 GMT', @timestamptz.httpdate
+    assert_equal 'Tue, 01 Apr 2042 22:30:45 GMT', @timestamptz_berlin.httpdate
+  end
+
+  def test_rfc2822
+    assert_equal 'Wed, 02 Apr 2042 00:30:45 -0000', @timestamptz.rfc2822
+    assert_equal 'Wed, 02 Apr 2042 00:30:45 +0200', @timestamptz_berlin.rfc2822
+  end
+
+  def test_rfc822
+    assert_equal 'Wed, 02 Apr 2042 00:30:45 -0000', @timestamptz.rfc822
+    assert_equal 'Wed, 02 Apr 2042 00:30:45 +0200', @timestamptz_berlin.rfc822
+  end
+
+  def test_xmlschema
+    assert_equal '2042-04-02T00:30:45Z', @timestamptz.xmlschema
+    assert_equal '2042-04-02T00:30:45+02:00', @timestamptz_berlin.xmlschema
+  end
+
+  def test_iso8601
+    assert_equal '2042-04-02T00:30:45Z', @timestamptz.iso8601
+    assert_equal '2042-04-02T00:30:45+02:00', @timestamptz_berlin.iso8601
   end
 end

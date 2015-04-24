@@ -14,7 +14,8 @@ module Teasy
                    :sunday?
     def_delegators :period, :dst?
     def_delegator :period, :utc_total_offset, :utc_offset
-    def_delegators :to_time, :to_i, :to_r, :to_f, :to_datetime, :to_date
+    def_delegators :to_time, :to_i, :to_r, :to_f, :to_datetime, :to_date,
+                   :httpdate, :rfc2822, :rfc822, :xmlschema, :iso8601
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(year, month = nil, day = nil,
@@ -126,9 +127,10 @@ module Teasy
     end
 
     def to_time
-      @local_time ||= Time.new(
-        @time.year, @time.mon, @time.day,
-        @time.hour, @time.min, @time.sec + @time.subsec, utc_offset)
+      return @local_time unless @local_time.nil?
+      params = %i(year mon day hour min).map! { |m| @time.send(m) }
+      params << @time.sec + @time.subsec
+      @local_time = utc? ? Time.utc(*params) : Time.new(*params, utc_offset)
     end
 
     private
