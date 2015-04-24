@@ -1,5 +1,6 @@
 require 'tzinfo'
 require 'forwardable'
+require 'date'
 
 module Teasy
   # rubocop:disable Metrics/ClassLength
@@ -13,7 +14,7 @@ module Teasy
                    :sunday?
     def_delegators :period, :dst?
     def_delegator :period, :utc_total_offset, :utc_offset
-    def_delegators :to_time, :to_i, :to_r, :to_f
+    def_delegators :to_time, :to_i, :to_r, :to_f, :to_datetime, :to_date
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(year, month = nil, day = nil,
@@ -35,10 +36,11 @@ module Teasy
     end
 
     def in_time_zone!(zone = Teasy.default_zone)
-      time = to_time
+      time = utc_time
       @zone = TZInfo::Timezone.get(zone)
       @time = @zone.utc_to_local(time)
       @period = @zone.period_for_utc(time)
+      remove_instance_variable(:@local_time) unless @local_time.nil?
       self
     end
 
@@ -93,12 +95,12 @@ module Teasy
     alias_method :ctime, :asctime
 
     def +(other)
-      TimeWithZone.from_utc(to_time + other, @zone.identifier)
+      TimeWithZone.from_utc(utc_time + other, @zone.identifier)
     end
 
     def -(other)
       if other.is_a? Numeric
-        TimeWithZone.from_utc(to_time - other, @zone.identifier)
+        TimeWithZone.from_utc(utc_time - other, @zone.identifier)
       elsif other.respond_to? :to_time
         to_time - other.to_time
       else
@@ -124,10 +126,16 @@ module Teasy
     end
 
     def to_time
-      @utc_time ||= @zone.local_to_utc(@time)
+      @local_time ||= Time.new(
+        @time.year, @time.mon, @time.day,
+        @time.hour, @time.min, @time.sec + @time.subsec, utc_offset)
     end
 
     private
+
+    def utc_time
+      @utc_time ||= @zone.local_to_utc(@time)
+    end
 
     attr_reader :time, :period
 

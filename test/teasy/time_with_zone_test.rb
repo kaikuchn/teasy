@@ -313,6 +313,30 @@ class TimeWithZoneTest < Minitest::Test
     assert_equal [45, 30, 0, 2, 4, 2042, 3, 92, true, 'CEST'], berlin_to_a
   end
 
+  def test_to_time
+    assert_instance_of Time, @timestamptz.to_time
+    assert_equal 0, @timestamptz.to_time.utc_offset
+    assert_equal @timestamptz, @timestamptz.to_time
+
+    assert_equal 7200, @timestamptz_berlin.to_time.utc_offset
+    assert_equal @timestamptz_berlin, @timestamptz_berlin.to_time
+  end
+
+  def test_to_datetime
+    assert_instance_of DateTime, @timestamptz.to_datetime
+    assert_equal 0, @timestamptz.to_datetime.offset
+    assert_equal @timestamptz, @timestamptz.to_datetime
+
+    assert_equal Rational(2, 24), @timestamptz_berlin.to_datetime.offset
+    assert_equal @timestamptz_berlin, @timestamptz_berlin.to_datetime
+  end
+
+  def test_to_date
+    assert_instance_of Date, @timestamptz.to_date
+    assert_equal @timestamptz.day, @timestamptz.to_date.day
+    assert_equal @timestamptz_berlin.day, @timestamptz_berlin.to_date.day
+  end
+
   def test_to_f
     assert_instance_of Float, @timestamptz.to_f
     assert_in_epsilon 2_280_011_445.000_001, @timestamptz.to_f
