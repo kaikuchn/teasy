@@ -14,8 +14,8 @@ module Teasy
   def self.with_zone(zone)
     old_zone = Thread.current[:teasy_default_zone]
     Thread.current[:teasy_default_zone] = zone
-    block_result = yield
+    yield
+  ensure
     Thread.current[:teasy_default_zone] = old_zone
-    block_result
   end
 end

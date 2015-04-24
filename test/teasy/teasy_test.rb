@@ -30,12 +30,17 @@ class TeasyTest < Minitest::Test
     threads.each(&:join)
   end
 
-  def test_with_zone
+  def test_with_zone_changes_default_zone_only_within_block
     assert_equal 'UTC', Teasy.default_zone
     Teasy.with_zone('Europe/Berlin') do
       assert_equal 'Europe/Berlin', Teasy.default_zone
+      fail 'exception within block'
     end
+  rescue
     assert_equal 'UTC', Teasy.default_zone
+  end
+
+  def test_with_zone_returns_block_result
     assert_equal 1, Teasy.with_zone('Europe/Berlin') { 1 }
   end
 end
