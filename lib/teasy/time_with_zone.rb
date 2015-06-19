@@ -35,6 +35,18 @@ module Teasy
       from_time(utc_time, 'UTC').in_time_zone!(zone)
     end
 
+    def self.parse(string, zone = Teasy.default_zone)
+      from_utc(Time.parse(string).utc, zone)
+    end
+
+    def self.iso8601(string, zone = Teasy.default_zone)
+      from_utc(Time.iso8601(string).utc, zone)
+    end
+
+    def self.strptime(string, format, zone = Teasy.default_zone)
+      new(*DateTime._strptime(string, format).values, 'UTC').in_time_zone!(zone)
+    end
+
     def in_time_zone!(zone = Teasy.default_zone)
       time = utc_time
       @zone = TZInfo::Timezone.get(zone)
@@ -57,7 +69,7 @@ module Teasy
     end
 
     def utc!
-      @time = @zone.local_to_utc(@time)
+      @time = @zone.local_to_utc(@time, @period.dst?)
       @zone = TZInfo::Timezone.get('UTC')
       @period = @zone.period_for_local(@time)
       self

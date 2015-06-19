@@ -69,6 +69,13 @@ class TimeWithZoneTest < Minitest::Test
     refute_equal time.object_id, @timestamptz.in_time_zone('Asia/Calcutta')
   end
 
+  def test_in_time_zone_at_dst_start
+    dst_start = Teasy::TimeWithZone.new(2014, 3, 30, 1)
+      .in_time_zone!('Europe/Berlin')
+    assert_equal 3, dst_start.hour
+    assert dst_start.dst?
+  end
+
   def test_raises_on_ambiguous_time
     dst_end = [2014, 10, 26, 2, 0, 0, 0, 'Europe/Berlin']
     assert_raises(TZInfo::AmbiguousTime) do
@@ -380,6 +387,17 @@ class TimeWithZoneTest < Minitest::Test
   def test_usec
     assert_equal 1, @timestamptz.usec
     assert_equal 1, @timestamptz_berlin.usec
+  end
+
+  def test_utc_at_dst_end
+    first_ambiguous_timestamp = Teasy::TimeWithZone.new(2014, 10, 26)
+      .in_time_zone 'Europe/Berlin'
+    assert_equal 2, first_ambiguous_timestamp.hour
+    assert_equal 0, first_ambiguous_timestamp.utc.hour
+    last_ambiguous_timestamp = Teasy::TimeWithZone.new(2014, 10, 26, 1)
+      .in_time_zone 'Europe/Berlin'
+    assert_equal 2, last_ambiguous_timestamp.hour
+    assert_equal 1, last_ambiguous_timestamp.utc.hour
   end
 
   def test_utc
