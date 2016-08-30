@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'tzinfo'
 require 'forwardable'
 
@@ -36,7 +37,7 @@ module Teasy
       strftime('%Y-%m-%d %H:%M:%S')
     end
 
-    alias_method :to_s, :inspect
+    alias to_s inspect
 
     def strftime(format)
       format = prefix_zone_info(format) if includes_zone_directive?(format)
@@ -47,7 +48,7 @@ module Teasy
       strftime('%a %b %e %T %Y')
     end
 
-    alias_method :ctime, :asctime
+    alias ctime asctime
 
     def <=>(other)
       return nil unless other.respond_to?(:to_time) &&
@@ -73,7 +74,7 @@ module Teasy
       elsif other.respond_to? :to_time
         to_time - other.to_time
       else
-        fail TypeError, "#{other.class} can't be coerced into FloatingTime"
+        raise TypeError, "#{other.class} can't be coerced into FloatingTime"
       end
     end
 
@@ -85,7 +86,7 @@ module Teasy
       time.dup
     end
 
-    alias_method :utc, :to_time
+    alias utc to_time
 
     def utc_offset
       0
@@ -93,21 +94,21 @@ module Teasy
 
     private
 
-    attr_reader :time
-
-    def self.zone_directives_matcher
+    def zone_directives_matcher
       @zone_directives_matcher ||= Regexp.union(
         /(?<!%)%Z/, /(?<!%)%z/, /(?<!%)%:z/, /(?<!%)%::z/
       )
     end
 
+    attr_reader :time
+
     def includes_zone_directive?(format)
-      FloatingTime.zone_directives_matcher =~ format
+      zone_directives_matcher =~ format
     end
 
     def prefix_zone_info(format)
       # prefixes zone directives with a % s.t. they are ignored in strftime
-      format.gsub(FloatingTime.zone_directives_matcher) { |m| '%' + m }
+      format.gsub(zone_directives_matcher) { |m| '%' + m }
     end
   end
   # rubocop:enable Metrics/ClassLength

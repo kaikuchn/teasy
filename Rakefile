@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rubocop/rake_task'
 require 'rake/testtask'
 require 'bundler/gem_tasks'

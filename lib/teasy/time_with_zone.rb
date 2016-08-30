@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'tzinfo'
 require 'forwardable'
 
@@ -93,7 +94,7 @@ module Teasy
       strftime(format)
     end
 
-    alias_method :to_s, :inspect
+    alias to_s inspect
 
     def strftime(format)
       format = replace_zone_info(format) if includes_zone_directive?(format)
@@ -104,7 +105,7 @@ module Teasy
       strftime('%a %b %e %T %Y')
     end
 
-    alias_method :ctime, :asctime
+    alias ctime asctime
 
     def +(other)
       TimeWithZone.from_utc(utc_time + other, @zone.identifier)
@@ -116,7 +117,7 @@ module Teasy
       elsif other.respond_to? :to_time
         to_time - other.to_time
       else
-        fail TypeError, "#{other.class} can't be coerced into TimeWithZone"
+        raise TypeError, "#{other.class} can't be coerced into TimeWithZone"
       end
     end
 
@@ -158,33 +159,35 @@ module Teasy
     ZONE_COLON_OFFSET = /(?<!%)%:z/
     ZONE_COLONS_OFFSET = /(?<!%)%::z/
 
-    def self.zone_directives_matcher
+    def zone_directives_matcher
       @zone_directives_matcher ||= Regexp.union(
         ZONE_ABBREV, ZONE_NO_COLON_OFFSET, ZONE_COLON_OFFSET, ZONE_COLONS_OFFSET
       )
     end
 
     def includes_zone_directive?(format)
-      TimeWithZone.zone_directives_matcher =~ format
+      zone_directives_matcher =~ format
     end
 
     def replace_zone_info(format)
       format_with_zone = format.gsub(ZONE_ABBREV, period.abbreviation.to_s)
       format_with_zone.gsub!(ZONE_NO_COLON_OFFSET, formatted_offset(utc_offset))
       format_with_zone.gsub!(
-        ZONE_COLON_OFFSET, formatted_offset(utc_offset, :with_colon))
+        ZONE_COLON_OFFSET, formatted_offset(utc_offset, :with_colon)
+      )
       format_with_zone.gsub!(
         ZONE_COLONS_OFFSET,
-        formatted_offset(utc_offset, :with_colon, :with_seconds))
+        formatted_offset(utc_offset, :with_colon, :with_seconds)
+      )
       format_with_zone
     end
 
     def formatted_offset(offset_in_seconds, colon = false, seconds = false)
-      string_format = '%s%02d:%02d'
+      string_format = +'%s%02d:%02d'
       string_format.concat(':%02d') if seconds
       string_format.delete!(':') unless colon
 
-      sign = offset_in_seconds < 0 ? '-' : '+'
+      sign = offset_in_seconds.negative? ? '-' : '+'
       hours = offset_in_seconds.abs / 3600
       minutes = (offset_in_seconds.abs % 3600) / 60
       seconds = (offset_in_seconds.abs % 60)
