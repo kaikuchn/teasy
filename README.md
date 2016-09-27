@@ -20,11 +20,6 @@ That was reported [here](https://github.com/rails/rails/issues/14178) a few year
 
 This gem also comes with a FloatingTime class, which is time without a zone. I.e., 5 a.m. in New York is the same as 5 a.m. in Berlin with regards to floating time. This is useful for events that should occur at a certain time irrespective of time zone. E.g., your wake up call at 8 a.m. which you wouldn't want to ring at 2 in the morning just because you switched time zones.
 
-## Why you should use this tentatively
-
-It's tested and I spend much thought on it. But I'm not perfect and there's bound to be bugs. I'll start using this gem productively which will give me some feedback. But right now I have only what my tests tell me.
-I'm sure there is room for improvement and there will be refactorings. However for now I need to use it and I'd be happy if you did too! So that I can get some feedback and see what needs to change.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -143,7 +138,7 @@ floating_time == other_ny_time # -> false
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/teasy/fork )
+1. Fork it ( https://github.com/kaikuchn/teasy/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
