@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'teasy/version'
 require 'teasy/time_with_zone'
 require 'teasy/floating_time'

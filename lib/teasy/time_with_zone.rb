@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'tzinfo'
 require 'forwardable'
 
@@ -140,7 +141,7 @@ module Teasy
 
     def to_time
       return @local_time unless @local_time.nil?
-      params = %i(year mon day hour min).map! { |m| @time.send(m) }
+      params = %i[year mon day hour min].map! { |m| @time.send(m) }
       params << @time.sec + @time.subsec
       @local_time = utc? ? Time.utc(*params) : Time.new(*params, utc_offset)
     end
