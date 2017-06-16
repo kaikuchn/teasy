@@ -3,21 +3,26 @@
 require 'teasy/version'
 require 'teasy/time_with_zone'
 require 'teasy/floating_time'
+require 'teasy/ambiguous_time_handling'
 
 module Teasy
-  def self.default_zone
-    Thread.current[:teasy_default_zone] ||= 'UTC'
-  end
+  include AmbiguousTimeHandling
 
-  def self.default_zone=(zone)
-    Thread.current[:teasy_default_zone] = zone
-  end
+  class << self
+    def default_zone
+      Thread.current[:teasy_default_zone] ||= 'UTC'
+    end
 
-  def self.with_zone(zone)
-    old_zone = Thread.current[:teasy_default_zone]
-    Thread.current[:teasy_default_zone] = zone
-    yield
-  ensure
-    Thread.current[:teasy_default_zone] = old_zone
+    def default_zone=(zone)
+      Thread.current[:teasy_default_zone] = zone
+    end
+
+    def with_zone(zone)
+      old_zone = default_zone
+      self.default_zone = zone
+      yield
+    ensure
+      self.default_zone = old_zone
+    end
   end
 end

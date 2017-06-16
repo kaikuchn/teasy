@@ -76,10 +76,23 @@ class TimeWithZoneTest < Minitest::Test
     assert dst_start.dst?
   end
 
-  def test_raises_on_ambiguous_time
+  def test_call_ambiguous_time_handler_on_ambiguous_time
     dst_end = [2014, 10, 26, 2, 0, 0, 0, 'Europe/Berlin']
+    # raise is default
     assert_raises(TZInfo::AmbiguousTime) do
       Teasy::TimeWithZone.new(*dst_end)
+    end
+
+    Teasy.with_ambiguous_time_handler(:default_to_dst) do
+      time = Teasy::TimeWithZone.new(*dst_end)
+      assert time.dst?
+      assert_equal 2, time.hour
+    end
+
+    Teasy.with_ambiguous_time_handler(:default_to_stdt) do
+      time = Teasy::TimeWithZone.new(*dst_end)
+      refute time.dst?
+      assert_equal 2, time.hour
     end
   end
 

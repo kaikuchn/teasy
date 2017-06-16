@@ -24,7 +24,9 @@ module Teasy
                    zone = Teasy.default_zone)
       @zone = TZInfo::Timezone.get(zone)
       @time = Time.utc(year, month, day, hour, minute, second, usec_with_frac)
-      @period = @zone.period_for_local(@time)
+      @period = (@zone.period_for_local(@time) do |results|
+        Teasy.ambiguous_time_handler.call(results, @time)
+      end)
     end
     # rubocop:enable Metrics/ParameterLists
 
