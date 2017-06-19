@@ -4,9 +4,11 @@ require 'teasy/version'
 require 'teasy/time_with_zone'
 require 'teasy/floating_time'
 require 'teasy/ambiguous_time_handling'
+require 'teasy/period_not_found_handling'
 
 module Teasy
   include AmbiguousTimeHandling
+  include PeriodNotFoundHandling
 
   class << self
     def default_zone

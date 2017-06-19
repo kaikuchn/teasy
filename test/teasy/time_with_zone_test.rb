@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class TimeWithZoneTest < Minitest::Test
@@ -96,10 +98,29 @@ class TimeWithZoneTest < Minitest::Test
     end
   end
 
-  def test_raises_when_period_does_not_exist
-    dst_start = [2014, 3, 30, 2, 30, 0, 0, 'Europe/Berlin']
-    assert_raises(TZInfo::PeriodNotFound) do
-      Teasy::TimeWithZone.new(*dst_start)
+  def test_call_period_not_found_handler_when_period_does_not_exist
+    Teasy.with_zone('Europe/Berlin') do
+      dst_start = [2014, 3, 30, 2, 30, 0, 0]
+      # raise is default
+      assert_raises(TZInfo::PeriodNotFound) do
+        Teasy::TimeWithZone.new(*dst_start)
+      end
+
+      Teasy.with_period_not_found_handler(:next_period) do
+        time = Teasy::TimeWithZone.new(*dst_start)
+        assert time.dst?
+        assert_equal(
+          Teasy::TimeWithZone.new(2014, 3, 30, 3), time
+        )
+      end
+
+      Teasy.with_period_not_found_handler(:previous_period) do
+        time = Teasy::TimeWithZone.new(*dst_start)
+        refute time.dst?
+        assert_equal(
+          Teasy::TimeWithZone.new(2014, 3, 30, 2), time
+        )
+      end
     end
   end
 
