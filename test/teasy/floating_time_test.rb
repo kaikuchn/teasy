@@ -23,6 +23,20 @@ class FloatingTimeTest < Minitest::Test
     assert_equal 0, timestamp.hour
   end
 
+  def test_in_time_zone
+    time = Teasy::FloatingTime.new(2014, 1, 1, 12)
+    assert_equal Time.utc(2014, 1, 1, 11), time.in_time_zone('Europe/Berlin')
+    assert_equal Time.utc(2014, 1, 1, 12), time.in_time_zone('Europe/London')
+    assert_equal Time.utc(2014, 1, 1, 6, 30), time.in_time_zone('Asia/Calcutta')
+    assert_equal Time.utc(2014, 1, 1, 17), time.in_time_zone('America/New_York')
+    assert_raises(TZInfo::AmbiguousTime) do
+      Teasy::FloatingTime.new(2014, 10, 26, 2).in_time_zone('Europe/Berlin')
+    end
+    assert_raises(TZInfo::PeriodNotFound) do
+      Teasy::FloatingTime.new(2014, 3, 30, 2, 30).in_time_zone('Europe/Berlin')
+    end
+  end
+
   def test_addition
     assert_equal 45, @timestamp.sec
     @timestamp += 5

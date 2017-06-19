@@ -25,6 +25,10 @@ module Teasy
           time.hour, time.min, time.sec, time.nsec / 1_000.0)
     end
 
+    def in_time_zone(zone)
+      Teasy.with_zone(zone) { TimeWithZone.from_time(self) }
+    end
+
     def round!(*args)
       @time = time.round(*args)
       self
