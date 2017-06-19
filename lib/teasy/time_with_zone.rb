@@ -150,7 +150,7 @@ module Teasy
 
     def determine_period(time, zone = Teasy.default_zone)
       zone.period_for_local(time) do |results|
-        Teasy.ambiguous_time_handler.call(results, time)
+        Teasy.ambiguous_time_handler.call(time, results)
       end
     rescue TZInfo::PeriodNotFound
       period, time = Teasy.period_not_found_handler.call(time, zone)

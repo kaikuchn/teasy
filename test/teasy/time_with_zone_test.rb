@@ -85,13 +85,13 @@ class TimeWithZoneTest < Minitest::Test
       Teasy::TimeWithZone.new(*dst_end)
     end
 
-    Teasy.with_ambiguous_time_handler(:default_to_dst) do
+    Teasy.with_ambiguous_time_handler(:daylight_savings_time) do
       time = Teasy::TimeWithZone.new(*dst_end)
       assert time.dst?
       assert_equal 2, time.hour
     end
 
-    Teasy.with_ambiguous_time_handler(:default_to_stdt) do
+    Teasy.with_ambiguous_time_handler(:standard_time) do
       time = Teasy::TimeWithZone.new(*dst_end)
       refute time.dst?
       assert_equal 2, time.hour

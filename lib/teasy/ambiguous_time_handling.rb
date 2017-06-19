@@ -37,9 +37,9 @@ module Teasy
         # By returning nil TZInfo will raise TZInfo::AmbigousTime. It'd be
         # better to raise our own error, but that would break the API that's out
         # there. So that will have to wait for a 1.x release.
-        raise:           ->(_periods, _time) {},
-        default_to_dst:  ->(periods, _time)  { periods.select(&:dst?) },
-        default_to_stdt: ->(periods, _time)  { periods.reject(&:dst?) }
+        raise:                 ->(_time, _periods) {},
+        daylight_savings_time: ->(_time, periods)  { periods.select(&:dst?) },
+        standard_time:         ->(_time, periods)  { periods.reject(&:dst?) }
       }.freeze
     end
   end
