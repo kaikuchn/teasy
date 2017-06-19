@@ -25,8 +25,8 @@ class FloatingTimeTest < Minitest::Test
 
   def test_in_time_zone
     time = Teasy::FloatingTime.new(2014, 1, 1, 12)
+    assert_equal Time.utc(2014, 1, 1, 12), time.in_time_zone
     assert_equal Time.utc(2014, 1, 1, 11), time.in_time_zone('Europe/Berlin')
-    assert_equal Time.utc(2014, 1, 1, 12), time.in_time_zone('Europe/London')
     assert_equal Time.utc(2014, 1, 1, 6, 30), time.in_time_zone('Asia/Calcutta')
     assert_equal Time.utc(2014, 1, 1, 17), time.in_time_zone('America/New_York')
     assert_raises(TZInfo::AmbiguousTime) do
