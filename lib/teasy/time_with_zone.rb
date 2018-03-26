@@ -46,7 +46,9 @@ module Teasy
     end
 
     def self.strptime(string, format, zone = Teasy.default_zone)
+      # rubocop:disable Style/DateTime
       new(*DateTime._strptime(string, format).values, 'UTC').in_time_zone!(zone)
+      # rubocop:enable Style/DateTime
     end
 
     def in_time_zone!(zone = Teasy.default_zone)

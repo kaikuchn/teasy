@@ -116,5 +116,4 @@ module Teasy
       format.gsub(zone_directives_matcher) { |m| '%' + m }
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
