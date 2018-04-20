@@ -44,7 +44,7 @@ class TimeWithZoneTest < Minitest::Test
 
   def test_constructor_defaults_to_teasy_default_zone
     assert_equal Teasy.default_zone, @timestamptz.zone
-    Teasy.stub(:default_zone, 'Europe/Berlin') do
+    Teasy.with_zone('Europe/Berlin') do
       timestamptz = Teasy::TimeWithZone.new(*@params)
       assert_equal 'Europe/Berlin', timestamptz.zone
     end
@@ -243,7 +243,7 @@ class TimeWithZoneTest < Minitest::Test
   def test_inspect
     assert_equal '2042-04-02 00:30:45 UTC', @timestamptz.inspect
     assert_equal '2042-04-02 00:30:45 +0200', @timestamptz_berlin.inspect
-    timestamptz = Teasy.stub(:default_zone, 'Europe/Berlin') do
+    timestamptz = Teasy.with_zone('Europe/Berlin') do
       Teasy::TimeWithZone.new(2042)
     end
     assert_equal '2042-01-01 00:00:00 +0100', timestamptz.inspect
@@ -402,7 +402,7 @@ class TimeWithZoneTest < Minitest::Test
   def test_to_s
     assert_equal '2042-04-02 00:30:45 UTC', @timestamptz.to_s
     assert_equal '2042-04-02 00:30:45 +0200', @timestamptz_berlin.to_s
-    timestamptz = Teasy.stub(:default_zone, 'Europe/Berlin') do
+    timestamptz = Teasy.with_zone('Europe/Berlin') do
       Teasy::TimeWithZone.new(2042)
     end
     assert_equal '2042-01-01 00:00:00 +0100', timestamptz.to_s
