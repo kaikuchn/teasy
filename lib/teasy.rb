@@ -22,7 +22,7 @@ module Teasy
     def with_zone(zone)
       old_zone = default_zone
       self.default_zone = zone
-      yield
+      yield zone
     ensure
       self.default_zone = old_zone
     end
