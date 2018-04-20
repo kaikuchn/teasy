@@ -22,7 +22,7 @@ module Teasy
     def initialize(year, month = nil, day = nil,
                    hour = nil, minute = nil, second = nil, usec_with_frac = nil,
                    zone = Teasy.default_zone)
-      @zone = TZInfo::Timezone.get(zone)
+      @zone = tzinfo_time_zone(zone)
       @time = Time.utc(year, month, day, hour, minute, second, usec_with_frac)
       @period = determine_period(@time, @zone)
     end
@@ -53,7 +53,7 @@ module Teasy
 
     def in_time_zone!(zone = Teasy.default_zone)
       time = utc_time
-      @zone = TZInfo::Timezone.get(zone)
+      @zone = tzinfo_time_zone(zone)
       @time = @zone.utc_to_local(time)
       @period = @zone.period_for_utc(time)
       remove_instance_variable(:@local_time) unless @local_time.nil?
@@ -74,7 +74,7 @@ module Teasy
 
     def utc!
       @time = @zone.local_to_utc(@time, @period.dst?)
-      @zone = TZInfo::Timezone.get('UTC')
+      @zone = tzinfo_time_zone('UTC')
       @period = @zone.period_for_local(@time)
       self
     end
@@ -206,6 +206,10 @@ module Teasy
       seconds = (offset_in_seconds.abs % 60)
 
       format(string_format, sign, hours, minutes, seconds)
+    end
+
+    def tzinfo_time_zone(time_zone)
+      Teasy.with_zone(time_zone) { |zone| TZInfo::Timezone.get(zone) }
     end
   end
   # rubocop:enable Metrics/ClassLength
