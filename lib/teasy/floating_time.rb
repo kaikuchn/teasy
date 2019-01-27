@@ -58,6 +58,7 @@ module Teasy
     def <=>(other)
       return nil unless other.respond_to?(:to_time) &&
                         other.respond_to?(:utc_offset)
+
       to_time - other.utc_offset <=> other.to_time.utc
     end
 

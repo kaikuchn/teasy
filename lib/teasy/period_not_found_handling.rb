@@ -35,11 +35,11 @@ module Teasy
       end
 
       HANDLER = {
-        raise:           ->(_time, _zone) { raise },
+        raise: ->(_time, _zone) { raise },
         # the biggest change in offsets known to me is when Samoa went from -11
         # to +13 (a full day!) so hopefully we're sure to leave the unknown
         # period by adding/subtracting 3 days
-        next_period:     lambda do |time, zone|
+        next_period: lambda do |time, zone|
           period = zone.period_for_local(time + 3 * 86_400)
           [period, period.start_transition.time + period.utc_total_offset]
         end,

@@ -46,9 +46,7 @@ module Teasy
     end
 
     def self.strptime(string, format, zone = Teasy.default_zone)
-      # rubocop:disable Style/DateTime
       new(*DateTime._strptime(string, format).values, 'UTC').in_time_zone!(zone)
-      # rubocop:enable Style/DateTime
     end
 
     def in_time_zone!(zone = Teasy.default_zone)
@@ -126,6 +124,7 @@ module Teasy
 
     def <=>(other)
       return nil unless other.respond_to? :to_time
+
       to_time <=> other.to_time
     end
 
@@ -143,6 +142,7 @@ module Teasy
 
     def to_time
       return @local_time unless @local_time.nil?
+
       params = %i[year mon day hour min].map! { |m| @time.send(m) }
       params << @time.sec + @time.subsec
       @local_time = utc? ? Time.utc(*params) : Time.new(*params, utc_offset)
@@ -167,10 +167,10 @@ module Teasy
     attr_reader :time, :period
 
     # matches valid format directives for zones
-    ZONE_ABBREV = /(?<!%)%Z/
-    ZONE_NO_COLON_OFFSET = /(?<!%)%z/
-    ZONE_COLON_OFFSET = /(?<!%)%:z/
-    ZONE_COLONS_OFFSET = /(?<!%)%::z/
+    ZONE_ABBREV = /(?<!%)%Z/.freeze
+    ZONE_NO_COLON_OFFSET = /(?<!%)%z/.freeze
+    ZONE_COLON_OFFSET = /(?<!%)%:z/.freeze
+    ZONE_COLONS_OFFSET = /(?<!%)%::z/.freeze
 
     def zone_directives_matcher
       @zone_directives_matcher ||= Regexp.union(
