@@ -41,11 +41,11 @@ module Teasy
         # period by adding/subtracting 3 days
         next_period: lambda do |time, zone|
           period = zone.period_for_local(time + 3 * 86_400)
-          [period, period.start_transition.time + period.utc_total_offset]
+          [period, period.start_transition.at.to_time + period.utc_total_offset]
         end,
         previous_period: lambda do |time, zone|
           period = zone.period_for_local(time - 3 * 86_400)
-          [period, period.end_transition.time + period.utc_total_offset]
+          [period, period.end_transition.at.to_time + period.utc_total_offset]
         end
       }.freeze
     end

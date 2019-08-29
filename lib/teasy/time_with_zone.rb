@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'tzinfo'
+require 'time'
 require 'forwardable'
 
 module Teasy
