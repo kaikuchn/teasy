@@ -386,7 +386,7 @@ class TimeWithZoneTest < Minitest::Test
   end
 
   def test_to_i
-    assert_instance_of Fixnum, @timestamptz.to_i
+    assert_instance_of Integer, @timestamptz.to_i
     assert_equal 2_280_011_445, @timestamptz.to_i
     assert_equal 2_280_004_245, @timestamptz_berlin.to_i
   end
