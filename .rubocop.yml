@@ -5,8 +5,8 @@ AllCops:
     - 'test/**/*'
 
 # Setting the line length to a maximum of 80 chars.
-LineLength:
+Layout/LineLength:
   Enabled: true
   Max: 80
-Documentation:
+Style/Documentation:
   Enabled: false

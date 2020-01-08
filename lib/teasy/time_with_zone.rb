@@ -55,7 +55,7 @@ module Teasy
       @zone = tzinfo_time_zone(zone)
       @time = @zone.utc_to_local(time)
       @period = @zone.period_for_utc(time)
-      remove_instance_variable(:@local_time) unless @local_time.nil?
+      remove_instance_variable(:@local_time) if defined?(@local_time)
       self
     end
 
@@ -142,7 +142,7 @@ module Teasy
     end
 
     def to_time
-      return @local_time unless @local_time.nil?
+      return @local_time if defined?(@local_time)
 
       params = %i[year mon day hour min].map! { |m| @time.send(m) }
       params << @time.sec + @time.subsec
@@ -197,16 +197,17 @@ module Teasy
     end
 
     def formatted_offset(offset_in_seconds, colon = false, seconds = false)
-      string_format = +'%s%02d:%02d'
-      string_format.concat(':%02d') if seconds
-      string_format.delete!(':') unless colon
-
       sign = offset_in_seconds.negative? ? '-' : '+'
       hours = offset_in_seconds.abs / 3600
       minutes = (offset_in_seconds.abs % 3600) / 60
-      seconds = (offset_in_seconds.abs % 60)
 
-      format(string_format, sign, hours, minutes, seconds)
+      separator = colon ? ':' : ''
+      string_format = ['%s%02d', '%02d', ('%02d' if seconds)]
+                      .compact.join(separator)
+      args = [sign, hours, minutes, ((offset_in_seconds.abs % 60) if seconds)]
+             .compact
+
+      format(string_format, *args)
     end
 
     def tzinfo_time_zone(time_zone)
