@@ -1,8 +1,9 @@
 AllCops:
   Exclude:
     - teasy.gemspec
-    - 'vendor/**/*'
-    - 'test/**/*'
+    - "vendor/**/*"
+    - "test/**/*"
+  NewCops: enable
 
 # Setting the line length to a maximum of 80 chars.
 Layout/LineLength:

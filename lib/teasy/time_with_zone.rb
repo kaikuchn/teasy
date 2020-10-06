@@ -196,6 +196,7 @@ module Teasy
       format_with_zone
     end
 
+    # rubocop:disable Style/OptionalBooleanParameter
     def formatted_offset(offset_in_seconds, colon = false, seconds = false)
       sign = offset_in_seconds.negative? ? '-' : '+'
       hours = offset_in_seconds.abs / 3600
@@ -209,6 +210,7 @@ module Teasy
 
       format(string_format, *args)
     end
+    # rubocop:enable Style/OptionalBooleanParameter
 
     def tzinfo_time_zone(time_zone)
       Teasy.with_zone(time_zone) { |zone| TZInfo::Timezone.get(zone) }

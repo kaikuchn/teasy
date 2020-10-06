@@ -1,18 +1,17 @@
-# coding: utf-8
-require File.expand_path("../lib/teasy/version", __FILE__)
+require File.expand_path('lib/teasy/version', __dir__)
 
 Gem::Specification.new do |spec|
   spec.name          = 'teasy'
   spec.version       = Teasy::VERSION
   spec.authors       = ['Kai Kuchenbecker']
   spec.email         = ['Kai.Kuchenbecker@invision.de']
-  spec.summary       = %q{Teasy intends to make handling time zones easy.}
-  spec.description   = %q{Teasy builds on tzinfo to get time zone data and
+  spec.summary       = 'Teasy intends to make handling time zones easy.'
+  spec.description   = "Teasy builds on tzinfo to get time zone data and
                           provides time classes to ease working with time zones.
                           It provides TimeWithZone which is similiar to Rails'
                           ActiveSupport::TimeWithZone but with less quirks. And
                           it provides FloatingTime which is time without a zone.
-                        }
+                        "
   spec.homepage      = ''
   spec.license       = 'MIT'
 
@@ -22,11 +21,11 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '> 2.0'
 
   spec.add_runtime_dependency 'tzinfo', '~> 2.0'
-  spec.add_runtime_dependency 'tzinfo-data', '~> 1.2019.3'
+  spec.add_runtime_dependency 'tzinfo-data', '~> 1.2020.1'
 
   spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'minitest'
   spec.add_development_dependency 'minitest-reporters'
+  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rubocop'
 end

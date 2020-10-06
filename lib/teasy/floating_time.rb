@@ -114,7 +114,7 @@ module Teasy
 
     def prefix_zone_info(format)
       # prefixes zone directives with a % s.t. they are ignored in strftime
-      format.gsub(zone_directives_matcher) { |m| '%' + m }
+      format.gsub(zone_directives_matcher) { |m| "%#{m}" }
     end
   end
 end
